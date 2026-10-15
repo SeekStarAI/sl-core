@@ -1,0 +1,13 @@
+[package]
+name = "sl-core"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Stateless single-step inference kernel and model assembly for StarLight."
+repository = "https://github.com/SeekStarAI/sl-core"
+readme = "README.md"
+
+[dependencies]
+sl-device = "0.1.0"
+sl-graph = "0.1.0"
+sl-precision = "0.1.0"
