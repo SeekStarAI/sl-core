@@ -677,6 +677,9 @@ fn validate_weights(
                 actual: value.dtype,
             });
         }
+        if !value.is_dense() {
+            return Err(BuildError::UnsupportedEncoding { program, value: id });
+        }
         if weights[..index].iter().any(|(other, _)| *other == id) {
             return Err(BuildError::DuplicateWeight { program, value: id });
         }
@@ -1469,13 +1472,18 @@ mod tests {
     }
 
     fn attention_program(seq: u32, state_kind: StateKind) -> CompiledProgram {
+        let max_seq = match state_kind {
+            StateKind::KvCache { max_seq, .. } => max_seq
+                .as_const()
+                .expect("test state kind uses a concrete max_seq"),
+        };
         let values = vec![
             f32_value(&[1, 1, seq, 2], ValueRole::Param),
             f32_value(&[1, 1, seq, 2], ValueRole::Param),
             f32_value(&[1, 1, seq, 2], ValueRole::Param),
             scalar_value(),
             f32_value(&[1, 1, seq, 2], ValueRole::Output),
-            f32_value(&[1, 1, 2, 4, 1, 2], ValueRole::State),
+            f32_value(&[1, 1, 2, max_seq, 1, 2], ValueRole::State),
             u32_value(&[1, seq], ValueRole::Input),
             scalar_value(),
         ];

@@ -54,6 +54,13 @@ pub enum BuildError {
         /// Unbound parameter.
         value: ValueId,
     },
+    /// A parameter uses a storage encoding this engine cannot execute.
+    UnsupportedEncoding {
+        /// `"prefill"` or `"decode"`.
+        program: &'static str,
+        /// The quantized parameter.
+        value: ValueId,
+    },
     /// A state value has no allocation.
     MissingState {
         /// `"prefill"` or `"decode"`.
@@ -239,6 +246,11 @@ impl fmt::Display for BuildError {
             Self::MissingWeight { program, value } => {
                 write!(formatter, "{program} has no weight for value {}", value.0)
             }
+            Self::UnsupportedEncoding { program, value } => write!(
+                formatter,
+                "{program} parameter {} uses a storage encoding this engine cannot execute",
+                value.0
+            ),
             Self::MissingState { program, value } => {
                 write!(formatter, "{program} has no state buffer for value {}", value.0)
             }
